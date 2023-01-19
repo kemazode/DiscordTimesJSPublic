@@ -3,35 +3,42 @@
     <head>
         <link rel="stylesheet" href="style.css">
     </head>
-    <style>select { margin: 5px; }</style>
+    <style>select { margin: 5px; } #ui { visibility: visible; } #gameui {visibility: hidden;}</style>
     <body>
-        <br>
-        <button type="button" id="start">Начать бой</button> 
-        <button type="button" id="shuffle">Случайно</button> 
-        <button type="button" id="reset">Сбросить</button> 
-        <p style="font-size:14px;font-family: monospace;">
-            🛡️ Длинное Оружие<br>
-            🏇 Быстрая Атака<br>
-            🗡️ Проникающий Удар<br>
-            ⚕️ Лекарское Умение<br>
-            🪙 Торговец-Эксперт<br>
-            ❓ Проклятие Смерти<br>
-            ⚡ Кара Господня<br>
-            🌩️ Гнев Господен<br>
-            💀 Неуязвимость<br>
-            🦇 Темный Дар<br>
-            🦇 Темное Искусство<br>
-            🌀 Увертливость<br>
-            👻 Яростный Дух<br>
-            💥 Шквальная Атака<br>
-            🏰 Гарнизон<br>
-            ❓ Тыловая Служба<br>
-            🐍 Отравленное Оружие<br>
-            ☠️ Мертвец<br>
-            ☠️ Быстрый Мертвец<br>
-            ⚔️ Контрудар<br>
-            ❓ Фланговый удар<br>
-        </p>
+        <div id="ui">
+            <br>
+            <button type="button" id="start">Начать бой</button> 
+            <button type="button" id="shuffle">Случайно</button> 
+            <button type="button" id="reset">Сбросить</button> 
+            <p style="font-size:1.1em;font-family: monospace;">
+                🛡️ Длинное Оружие<br>
+                🏇 Быстрая Атака<br>
+                🗡️ Проникающий Удар<br>
+                ⚕️ Лекарское Умение<br>
+                🪙 Торговец-Эксперт<br>
+                ❓ Проклятие Смерти<br>
+                ⚡ Кара Господня<br>
+                🌩️ Гнев Господен<br>
+                💀 Неуязвимость<br>
+                🦇 Темный Дар<br>
+                🦇 Темное Искусство<br>
+                🌀 Увертливость<br>
+                👻 Яростный Дух<br>
+                💥 Шквальная Атака<br>
+                🏰 Гарнизон<br>
+                ❓ Тыловая Служба<br>
+                🐍 Отравленное Оружие<br>
+                ☠️ Мертвец<br>
+                ☠️ Быстрый Мертвец<br>
+                ⚔️ Контрудар<br>
+                ❓ Фланговый удар<br>
+            </p>
+            <label for="armyconf">Конфигурация армии:</label>
+            <input style="font-family: monospace; font-size: 1.1em;" name="armyconf" size="48" maxlength="48" id="armyconf">
+        </div>
+        <div id="gameui">
+            <button type="button" style="position:absolute;margin-top:10px;left:50%;top:0%;translate: -50% -0%;" id="finish">Завершить битву</button>
+        </div>
     </body>
     <script src="Units.js"></script>
     <script src="Relics.js"></script>

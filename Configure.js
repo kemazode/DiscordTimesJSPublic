@@ -1,114 +1,299 @@
-DT_UploadResources();
+BASE_PATH = ''; // for index.html
 
-options = ['Никто', ...Object.keys(DT_Units)];
-boxes = [];
+const EnemyRear     = [23, 22, 21, 20, 19, 18];
+const EnemyForward  = [17, 16, 15, 14, 13, 12];
+const PlayerForward = [0, 1, 2, 3, 4, 5];
+const PlayerRear    = [6, 7, 8, 9, 10, 11]; 
 
-gameui = document.getElementById('gameui');
-ui = document.getElementById('ui');
-armyconf = document.getElementById('armyconf');
+const PlayerSide = 'player';
+const EnemySide = 'enemy';
+let CSSCards = [];
 
-function arrayToHexString(arr) {
-    let hexString = "";
-    for (let i = 0; i < arr.length; i++) {
-        let hexVal = Number(arr[i].value).toString(16);
-        if (hexVal.length < 2) {
-            hexVal = "0" + hexVal;
+let Grids = {
+    'table': { // picking table
+        
+    },
+};
+
+let UnitsNames = Object.keys(DT_Units);
+let ActiveSide = null;
+let ActiveTable = null;
+let SelectedUnit = null;
+
+const cssText = `
+    .picking_grid {
+        display: grid;
+        position: absolute;
+        grid-template-columns: repeat(12, 1fr);
+        top: 0;
+        left: 0;
+        margin: 32px;
+    }
+
+    .grid_pr_${EnemySide}, .grid_pr_${PlayerSide} {
+        display: grid;
+        position: absolute;
+        grid-template-columns: repeat(6, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+        gap: 5px;
+        bottom: 0;
+        left: 0;
+        margin: 32px;
+    }
+
+    .grid_pr_${EnemySide} {
+        --border-color: #dc143c50;
+        /*box-shadow: 0 0 20px 1px palevioletred;*/
+    }
+
+    .grid_pr_${PlayerSide} {
+        --border-color: #90ee9050;
+       /*box-shadow: 0 0 20px 1px lightgreen;*/
+    }
+
+    .card_pr .icon_pr {
+        max-width: 100%;
+        height: 100%;
+      }
+
+    .card_pr {
+        background-color: rgba(255, 255, 255, 0.2);
+        font-family: monospace;
+        text-align: left;
+        line-height: 1.2em;
+        box-shadow: 0 0 20px 1px var(--border-color);
+        border: solid 2.5px rgba(255,255,255,0.6);
+    }
+
+    .selected_pr {
+        filter: opacity(50%);
+        transition: 0.1s;
+    }
+`;
+
+function CreatePreviewGrids(side) {
+	function createCard(id) {
+		img = document.createElement('img');
+		img.classList.add('icon_pr');
+        img.style.pointerEvents = "none";
+
+		// Container
+		let card = document.createElement('div');
+		card.setAttribute('number',`${id}`);
+		card.classList.add('card_pr');
+
+        card.append(img);
+
+		return card;
+	}
+
+	grid = document.createElement('div');
+	grid.classList.add('grid_pr_' + side);
+
+	// The order is important
+    orderedArmy = [];
+
+    if (side === PlayerSide) {
+	    orderedArmy = [...PlayerForward, ...PlayerRear];
+    } else {
+        orderedArmy = [...EnemyForward, ...EnemyRear]; 
+    }
+	 
+	for (let i = 0; i < ARMY_SIZE; i++) {
+		// Icon of the unit		
+        pos = orderedArmy[i];
+		card = createCard(pos);
+        card.addEventListener('click', (event) => { 
+            el = event.target;
+            n = Number(el.getAttribute('number'));
+
+            if (SelectedUnit === null && DT_IsThereUnit(DT_Armies[n])) {
+                console.log('There is a unit');
+                SelectedUnit = n;
+                el.classList.add('selected_pr');
+
+            } else if (SelectedUnit === n) {
+                SelectedUnit = null;
+                el.classList.remove('selected_pr');
+            } else if (SelectedUnit !== null) {
+                DT_SwapUnits([SelectedUnit], [n], true);
+                RefreshCard(SelectedUnit);
+                RefreshCard(n);
+                CSSCards[SelectedUnit].classList.remove('selected_pr');
+                SelectedUnit = null;
+            }
+        });
+
+        card.addEventListener('contextmenu', (event) => {
+            el = event.target;
+            n = Number(el.getAttribute('number'));
+            if (DT_IsThereUnit(DT_Armies[n])) {
+                DT_RemoveUnit(DT_Armies[n]);
+                RefreshCard(n);
+            }
+        });
+
+		grid.appendChild(card);
+		CSSCards[pos] = card;
+		//RefreshElement(orderedArmy[i]);
+	}
+ 
+	Grids[side] = grid;
+}
+
+function CreatePickingGrid(nature, property = null) {
+    function createCard(unitname) {
+		img = document.createElement('img');
+		img.classList.add('icon_pk');
+        img.style.pointerEvents = "none";
+
+		// Container
+		let card = document.createElement('div');
+		card.setAttribute('unitname',`${unitname}`);
+		card.classList.add('card_pk');
+
+        card.append(img);
+
+		return card;
+	}
+
+    grid = document.createElement('div');
+	grid.classList.add('picking_grid'); 
+
+    for (const k in DT_Units) {
+        u = DT_Units[k];
+        if (u.Nature === nature && (property === null || property in u)) {
+            card = createCard(k);
+            card.addEventListener('click', (event) => {
+                element = event.target;
+                uname = element.getAttribute('unitname');
+                pos = DT_AddUnit(ActiveSide, uname);
+                if (pos !== null) {
+                    RefreshCard(pos);
+                } 
+            });
+
+            img = card.children[0];
+            imgurl = DT_Resources['icons'][u.GlobalIndex].src;
+            img.style.width = '92px';
+            img.style.height = '92px';
+            img.style.setProperty('background-repeat', 'no-repeat');
+            img.style.setProperty('background-size', 'cover');
+            img.style.setProperty('background-image', `url(${imgurl})`);
+
+            grid.appendChild(card);
         }
-        hexString += hexVal;
     }
-    return hexString;
+
+    subclass = (property === null)? '' : ' ' + property;
+
+    Grids['table'][nature + subclass] = grid;
+    return grid;
 }
 
-function hexStringToArray(hexString, arr) {
-    for (let i = 0; i < arr.length; i++) {
-        let hexVal = hexString.substring(i*2, i*2+2);
-        arr[i].value = parseInt(hexVal, 16);
+function SwitchTable(nature) {
+    ActiveTable = nature;
+    for (const k in Grids['table']) {
+        Grids['table'][k].style.visibility = (k === nature)? 'visible' : 'hidden';
     }
-    return arr;
+
 }
 
-function createLine(name, label, units) {
-    block = document.createElement('div');
-    lhtml = document.createElement('label');
-    lhtml.setAttribute('for', name + '0');
-    lhtml.innerHTML = label +'<br>';
+function togglePreview(side) {
+    element = Grids[side];
+    SelectedUnit = null;
 
-    block.appendChild(lhtml);
-
-    for (let j = 0; j < units.length; j++) {
-        box = document.createElement('select');
-        box.setAttribute('name', name + String(j));
-
-        for (let i = 0; i < options.length; i++) {
-            ohtml = document.createElement('option')
-            ohtml.setAttribute('value', i);
-            ohtml.innerText = options[i];
-            box.appendChild(ohtml);
-        }        
-        boxes.push(box);
-        block.appendChild(box);
+    if (element.style.visibility === "hidden") {
+      element.style.visibility = "visible";
+      ActiveSide = side;
+      RefreshGrid(side);
+    } else {
+      element.style.visibility = "hidden";
     }
+  }
 
-    ui.prepend(block);
+function TurnUIOff() {
+    Grids.table[ActiveTable].style.visibility = 'hidden';
+    Grids[ActiveSide].style.visibility = 'hidden';
 }
 
-createLine('4', 'Арьергард:', DT_PlayerRear);
-createLine('3', 'Форвард:', DT_PlayerForward);
-createLine('2', 'Форвард (вр.):', DT_EnemyForward);
-createLine('1', 'Арьергард (вр.):', DT_EnemyRear);
-
-document.getElementById('start').addEventListener('click', function() {
-    gameui.style.visibility = 'visible';
-    ui.style.visibility = 'hidden';
-    DT_ClearArmies();
-    DT_ClearElements();
-    player_units = [];
-    enemy_units = [];
-
-    for (let i = 0; i < 12; i++) {
-        player_units.push(options[boxes[i].value]);
-    }
-    for (let i = 12; i < 24; i++) {
-        enemy_units.push(options[boxes[i].value]);
-    }
-
-    console.log(player_units);
-    DT_CreateArmy('player', player_units);
-    DT_CreateArmy('enemy', enemy_units);
-
-    DT_Parent = document.body;
-    DT_StartTheBattle();
-});
-
-document.getElementById('shuffle').addEventListener('click', function() {
-    for (let i = 0; i < boxes.length; i++) {
-        boxes[i].value = getRandomInt(options.length - 1) + 1;
-    }
-    armyconf.value = arrayToHexString(boxes);
-});
-
-document.getElementById('reset').addEventListener('click', function() {
-    DT_ClearElements();
-    DT_ClearArmies();
-    for (let i = 0; i < boxes.length; i++) {
-        boxes[i].value = 0;
-    }
-    armyconf.value = arrayToHexString(boxes);
-});
-
-document.getElementById('finish').addEventListener('click', function() {
-    gameui.style.visibility = 'hidden';
-    ui.style.visibility = 'visible';
-    DT_ClearElements();
-    DT_ClearArmies();
-});
-
-for (let i = 0; i < boxes.length; i++) {
-    boxes[i].addEventListener('change', (event) => { 
-        armyconf.value = arrayToHexString(boxes);
-    });
+function TurnUIOn() {
+    Grids[ActiveSide].style.visibility = 'visible';
+    Grids.table[ActiveTable].style.visibility = 'visible';
 }
 
-armyconf.addEventListener('change', (event) => { 
-    hexStringToArray(armyconf.value, boxes);
-});
+function main() {
+    DT_UploadResources();
+    const styleElement = document.createElement('style');
+    styleElement.innerHTML = cssText;
+    document.head.appendChild(styleElement);
+
+    CreatePreviewGrids(PlayerSide);
+    CreatePreviewGrids(EnemySide);
+
+    CreatePickingGrid('Loyal', 'MagicPower');
+    CreatePickingGrid('Loyal', 'AttackBlow');
+    CreatePickingGrid('Loyal', 'AttackShot');
+    CreatePickingGrid('Undead');
+    CreatePickingGrid('Rogue');
+    CreatePickingGrid('People');
+
+    ActiveSide = PlayerSide;
+    Grids[PlayerSide].style.visibility = 'hidden';
+    Grids[EnemySide].style.visibility = 'hidden';
+
+    ActiveTable = 'Loyal AttackBlow';
+    Grids.table['Loyal AttackBlow'].style.visibility = 'hidden';
+    Grids.table['Loyal AttackShot'].style.visibility = 'hidden';
+    Grids.table['Loyal MagicPower'].style.visibility = 'hidden';
+    Grids.table['Undead'].style.visibility = 'hidden';
+    Grids.table['Rogue'].style.visibility = 'hidden';
+    Grids.table['People'].style.visibility = 'hidden';
+
+    player = [];
+    enemy = [];
+
+    for (let i = 0; i < ARMY_SIZE; i++) {
+        player.push( '-1' ); // ~100
+        enemy.push( '-1' );  // ~100
+    }
+
+    DT_CreateArmy('player', player);
+    DT_CreateArmy('enemy', enemy);
+}
+
+function RefreshGrid(side) {
+    orderedArmy = [];
+    if (side === PlayerSide) {
+	    orderedArmy = [...PlayerForward, ...PlayerRear];
+    } else {
+        orderedArmy = [...EnemyForward, ...EnemyRear]; 
+    }
+ 
+    for (let i = 0; i < orderedArmy.length; i++) {
+        RefreshCard(orderedArmy[i]);
+    }
+}
+
+function RefreshCard(i) {
+    card = CSSCards[i];
+    imgcss = card.children[0];
+
+    u = DT_Armies[i];
+    if (u === null) {
+        imgcss.style.width = DT_ImgWidth;
+        imgcss.style.height = DT_ImgHeight;
+        imgcss.style.removeProperty('background-image');
+        return;
+    }
+
+    img = DT_Resources['icons'][u.GlobalIndex].src;
+    imgcss.style.width = DT_ImgWidth;
+	imgcss.style.height = DT_ImgHeight;
+	imgcss.style.setProperty('background-repeat', 'no-repeat');
+
+	imgcss.style.setProperty('background-size', 'cover');
+	imgcss.style.setProperty('background-image', `url(${img})`);
+}
+
+main();

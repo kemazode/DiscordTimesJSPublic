@@ -22,9 +22,7 @@ let SelectedUnit = null;
 
 const cssText = `
     .picking_grid {
-        display: grid;
         position: absolute;
-        grid-template-columns: repeat(12, 1fr);
         top: 0;
         left: 0;
         margin: 32px;
@@ -42,12 +40,12 @@ const cssText = `
     }
 
     .grid_pr_${EnemySide} {
-        --border-color: #dc143c50;
+        --border-color: #fba7b5;
         /*box-shadow: 0 0 20px 1px palevioletred;*/
     }
 
     .grid_pr_${PlayerSide} {
-        --border-color: #90ee9050;
+        --border-color: #fff091;
        /*box-shadow: 0 0 20px 1px lightgreen;*/
     }
 
@@ -55,14 +53,20 @@ const cssText = `
         max-width: 100%;
         height: 100%;
       }
-
+    
     .card_pr {
         background-color: rgba(255, 255, 255, 0.2);
         font-family: monospace;
+        min-width: max-content;
+        min-height: max-content;
         text-align: left;
         line-height: 1.2em;
-        box-shadow: 0 0 20px 1px var(--border-color);
-        border: solid 2.5px rgba(255,255,255,0.6);
+        border: solid 2px var(--border-color);
+    }
+
+    .card_pk {
+        display: inline;
+        margin: -1px;
     }
 
     .selected_pr {
@@ -75,11 +79,11 @@ function CreatePreviewGrids(side) {
 	function createCard(id) {
 		img = document.createElement('img');
 		img.classList.add('icon_pr');
-        img.style.pointerEvents = "none";
+		img.setAttribute('number',`${id}`);
 
 		// Container
 		let card = document.createElement('div');
-		card.setAttribute('number',`${id}`);
+
 		card.classList.add('card_pr');
 
         card.append(img);
@@ -103,7 +107,9 @@ function CreatePreviewGrids(side) {
 		// Icon of the unit		
         pos = orderedArmy[i];
 		card = createCard(pos);
-        card.addEventListener('click', (event) => { 
+        img = card.children[0];
+
+        img.addEventListener('click', (event) => { 
             el = event.target;
             n = Number(el.getAttribute('number'));
 
@@ -117,14 +123,17 @@ function CreatePreviewGrids(side) {
                 el.classList.remove('selected_pr');
             } else if (SelectedUnit !== null) {
                 DT_SwapUnits([SelectedUnit], [n], true);
+                DT_PlaySFX('Slide');
                 RefreshCard(SelectedUnit);
                 RefreshCard(n);
-                CSSCards[SelectedUnit].classList.remove('selected_pr');
+                prevcard = CSSCards[SelectedUnit];
+                previmg = prevcard.children[0];
+                previmg.classList.remove('selected_pr');
                 SelectedUnit = null;
             }
         });
 
-        card.addEventListener('contextmenu', (event) => {
+        img.addEventListener('contextmenu', (event) => {
             el = event.target;
             n = Number(el.getAttribute('number'));
             if (DT_IsThereUnit(DT_Armies[n])) {
@@ -145,13 +154,11 @@ function CreatePickingGrid(nature, property = null) {
     function createCard(unitname) {
 		img = document.createElement('img');
 		img.classList.add('icon_pk');
-        img.style.pointerEvents = "none";
+        img.setAttribute('unitname',`${unitname}`);
 
 		// Container
 		let card = document.createElement('div');
-		card.setAttribute('unitname',`${unitname}`);
 		card.classList.add('card_pk');
-
         card.append(img);
 
 		return card;
@@ -164,16 +171,18 @@ function CreatePickingGrid(nature, property = null) {
         u = DT_Units[k];
         if (u.Nature === nature && (property === null || property in u)) {
             card = createCard(k);
-            card.addEventListener('click', (event) => {
+            img = card.children[0];
+
+            img.addEventListener('click', (event) => {
                 element = event.target;
                 uname = element.getAttribute('unitname');
                 pos = DT_AddUnit(ActiveSide, uname);
                 if (pos !== null) {
+                    DT_PlaySFX('Pick');
                     RefreshCard(pos);
                 } 
             });
 
-            img = card.children[0];
             imgurl = DT_Resources['icons'][u.GlobalIndex].src;
             img.style.width = '92px';
             img.style.height = '92px';
@@ -197,6 +206,14 @@ function SwitchTable(nature) {
         Grids['table'][k].style.visibility = (k === nature)? 'visible' : 'hidden';
     }
 
+}
+
+function GetRandomArmy() {
+    units = [];
+    for (let i = 0; i < ARMY_SIZE; i++) {
+        units.push(UnitsNames[getRandomInt(UnitsNames.length)]);
+    }
+    return units;
 }
 
 function togglePreview(side) {
@@ -280,7 +297,7 @@ function RefreshCard(i) {
     imgcss = card.children[0];
 
     u = DT_Armies[i];
-    if (u === null) {
+    if (!u) {
         imgcss.style.width = DT_ImgWidth;
         imgcss.style.height = DT_ImgHeight;
         imgcss.style.removeProperty('background-image');

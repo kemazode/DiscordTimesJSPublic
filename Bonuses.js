@@ -66,8 +66,8 @@ CreateBonus(bonus, emoji, stage, callback), где
 (если вы Сульфодиес, немедленно закройте файл и удалите папку)
 */
 
-const PhysicalAttacks =       ['Strike', 'Blow', 'Shot'];
-const PhysicalDamageAttacks = ['Strike', 'Blow', 'Shot'];
+const PhysicalAttacks =       ['Strike', 'Blow', 'Shot', 'Fist'];
+const PhysicalDamageAttacks = ['Strike', 'Blow', 'Shot', 'Fist'];
 
 const MagicAttacks =       ['Bless', 'Curse', 'Draining Life', 'Curse of Death', 'Heal'];
 const MagicDamageAttacks = ['Draining Life'];

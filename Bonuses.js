@@ -69,8 +69,8 @@ CreateBonus(bonus, emoji, stage, callback), где
 const PhysicalAttacks =       ['Strike', 'Blow', 'Shot', 'Fist'];
 const PhysicalDamageAttacks = ['Strike', 'Blow', 'Shot', 'Fist'];
 
-const MagicAttacks =       ['Bless', 'Curse', 'Draining Life', 'Curse of Death', 'Heal'];
-const MagicDamageAttacks = ['Draining Life'];
+const MagicAttacks =       ['Bless', 'Curse', 'Draining Life', 'Curse of Death', 'Heal', 'God Anger', 'God Wrath'];
+const MagicDamageAttacks = ['Draining Life', 'God Anger', 'God Wrath'];
 
 const DamageAttacks = [...PhysicalDamageAttacks, ...MagicDamageAttacks];
 
@@ -122,8 +122,8 @@ function BonusArtillery(stage, attacker, target, attacktype, hit) {
 
 // Attack bonus: the character inflicts 10 damage on top of his attack anyway, ignoring any enemy defences
 function BonusGodAnger(stage, attacker, target, attacktype, hit) {
-	if (DamageAttacks.includes(attacktype)) {
-		hit.Hits = hit.Hits - 10;
+	if (DamageAttacks.includes(attacktype) && attacktype !== 'God Anger') {
+		GoOff('Hit', attacker, target, 'God Anger');
 	}
 
 	return hit;
@@ -131,8 +131,8 @@ function BonusGodAnger(stage, attacker, target, attacktype, hit) {
 
 // Attack bonus: the character inflicts 20 damage on top of his attack anyway, ignoring any enemy defences
 function BonusGodStrike(stage, attacker, target, attacktype, hit) {
-	if (DamageAttacks.includes(attacktype)) {
-		hit.Hits = hit.Hits - 20;
+	if (DamageAttacks.includes(attacktype) && attacktype !== 'God Wrath') {
+		GoOff('Hit', attacker, target, 'God Wrath');
 	}
 
 	return hit;

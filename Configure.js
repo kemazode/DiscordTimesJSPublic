@@ -23,6 +23,12 @@ let SelectedUnit = null;
 const cssText = `
     .picking_grid {
         position: absolute;
+        display: grid;
+        grid-template-rows: repeat(2, 1fr);
+        grid-auto-flow: column;
+        gap: 3px;
+        width: calc(100% - 64px);
+        overflow: auto;
         top: 0;
         left: 0;
         margin: 32px;
@@ -33,6 +39,7 @@ const cssText = `
         position: absolute;
         grid-template-columns: repeat(6, 1fr);
         grid-template-rows: repeat(2, 1fr);
+        writing-mode: tb;
         gap: 5px;
         bottom: 0;
         left: 0;
@@ -45,28 +52,35 @@ const cssText = `
     }
 
     .grid_pr_${PlayerSide} {
-        --border-color: #fff091;
+        --border-color: lightgreen;
        /*box-shadow: 0 0 20px 1px lightgreen;*/
     }
-
-    .card_pr .icon_pr {
-        max-width: 100%;
-        height: 100%;
-      }
     
+    .icon_pr {
+        width: 100%;
+        height: 100%;
+        background-repeat: no-repeat;
+        min-width: 32px;
+        min-height: 32px;
+        border-radius: 50%;
+        border: solid 1px;
+    }
+
     .card_pr {
         background-color: rgba(255, 255, 255, 0.2);
-        font-family: monospace;
-        min-width: max-content;
-        min-height: max-content;
-        text-align: left;
-        line-height: 1.2em;
         border: solid 2px var(--border-color);
+        border-radius: 50%;
+        border: solid, 1px;
+    }
+
+    .icon_pk {
+        box-shadow: 1px 1px 4px 0px black;
+        border-radius: 50%;
+        margin: 5px;
     }
 
     .card_pk {
         display: inline;
-        margin: -1px;
     }
 
     .selected_pr {
@@ -298,17 +312,11 @@ function RefreshCard(i) {
 
     u = DT_Armies[i];
     if (!u) {
-        imgcss.style.width = DT_ImgWidth;
-        imgcss.style.height = DT_ImgHeight;
         imgcss.style.removeProperty('background-image');
         return;
     }
 
     img = DT_Resources['icons'][u.GlobalIndex].src;
-    imgcss.style.width = DT_ImgWidth;
-	imgcss.style.height = DT_ImgHeight;
-	imgcss.style.setProperty('background-repeat', 'no-repeat');
-
 	imgcss.style.setProperty('background-size', 'cover');
 	imgcss.style.setProperty('background-image', `url(${img})`);
 }

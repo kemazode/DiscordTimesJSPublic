@@ -61,7 +61,10 @@
   }
 
   .dtgrid {
-	width: max-content;
+	width: 100vw;
+	height: 100vh;
+	max-width: max-content;
+	max-height: max-content;
 	display: grid;
 	gap: 20px;
 	grid-template-columns: repeat(6, 1fr);
@@ -72,7 +75,11 @@
 	left: 50%;
 	transform: translate(-50%, -50%);
 	user-select: none;
+	overflow: auto;
+	margin-top: 10px;
+    padding-bottom: 10px;
   }
+
   .card .icon {
 	margin-bottom: 5px;
 	margin-right: 2px;
@@ -81,6 +88,7 @@
   }
 
  .card {
+	min-inline-size: max-content;
 	background-color: thistle;
 	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 	font-family: monospace;

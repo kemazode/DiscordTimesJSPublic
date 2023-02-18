@@ -61,10 +61,8 @@
   }
 
   .dtgrid {
-	width: 100vw;
-	height: 100vh;
-	max-width: max-content;
-	max-height: max-content;
+	max-width: 100vw;
+	max-height: 100vh;
 	display: grid;
 	gap: 20px;
 	grid-template-columns: repeat(6, 1fr);
@@ -75,8 +73,8 @@
 	left: 50%;
 	transform: translate(-50%, -50%);
 	user-select: none;
-	overflow: auto;
 	margin-top: 10px;
+	overflow: auto;
     padding-bottom: 10px;
   }
 
@@ -96,7 +94,6 @@
 	line-height: 1.2em;
 	transform-style: preserve-3d;
 	transition: 0.5s;
-	height: min-content;
   }
 
   .card-front {

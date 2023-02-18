@@ -96,6 +96,7 @@
 	line-height: 1.2em;
 	transform-style: preserve-3d;
 	transition: 0.5s;
+	height: min-content;
   }
 
   .card-front {

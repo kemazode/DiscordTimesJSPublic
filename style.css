@@ -73,7 +73,6 @@
 	left: 50%;
 	transform: translate(-50%, -50%);
 	user-select: none;
-	margin-top: 10px;
 	overflow: auto;
     padding-bottom: 10px;
   }
